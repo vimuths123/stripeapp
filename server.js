@@ -9,7 +9,8 @@ const PORT = process.env.PORT || 5000;
 
 // Middleware
 app.use(cors());
-app.use(express.json());
+app.use("/webhook", express.raw({ type: "application/json" })); // Webhook requires raw body
+app.use(express.json()); 
 
 // Serve static files from the 'public' folder
 app.use(express.static(path.join(__dirname, 'public')));
@@ -29,6 +30,24 @@ app.post('/create-payment-intent', async (req, res) => {
     res.status(500).send({ error: error.message });
   }
 });
+
+app.post("/webhook", express.raw({ type: "application/json" }), (req, res) => {
+    const sig = req.headers["stripe-signature"];
+
+    let event;
+    try {
+        // Use req.body directly (raw Buffer) for signature verification
+        event = stripe.webhooks.constructEvent(req.body, sig, process.env.STRIPE_WEBHOOK_SECRET);
+    } catch (err) {
+        console.error("Webhook signature verification failed:", err.message);
+        return res.status(400).send(`Webhook Error: ${err.message}`);
+    }
+
+    console.log("Webhook received:", event.type);
+
+    res.json({ received: true });
+});
+
 
 // Start Server
 app.listen(PORT, () => {

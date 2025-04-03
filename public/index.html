@@ -16,7 +16,7 @@
     </form>
 
     <script>
-        const stripe = Stripe(""); // Replace with your Stripe Publishable Key
+        const stripe = Stripe("pk_test_51N0qcrJYVRzxBOJIs8sb83xUnk0Zbr1SK2J4Q11GxL8tSOT1EXQbW9zU97hDjW9BhAhruuGOwhQUcvInCC3p1oAm00EATjHNwr"); // Replace with your Stripe Publishable Key
         let elements = stripe.elements();
         let cardElement = elements.create("card");
         cardElement.mount("#card-element");
