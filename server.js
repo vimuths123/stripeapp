@@ -11,10 +11,8 @@ const PORT = process.env.PORT || 5000;
 app.use(cors());
 app.use(express.json());
 
-// Test Route
-app.get('/', (req, res) => {
-    res.send('Server is running 🚀');
-});
+// Serve static files from the 'public' folder
+app.use(express.static(path.join(__dirname, 'public')));
 
 // Route to handle payment
 app.post('/create-payment-intent', async (req, res) => {
