@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stripe Payment</title>
+    <script src="https://js.stripe.com/v3/"></script>
+</head>
+<body>
+    <h2>Stripe Payment</h2>
+    <form id="payment-form">
+        <input type="number" id="amount" placeholder="Enter amount" required />
+        <div id="card-element"></div>
+        <div id="error-message"></div>
+        <button type="submit">Pay Now</button>
+    </form>
+
+    <script>
+        const stripe = Stripe(""); // Replace with your Stripe Publishable Key
+        let elements = stripe.elements();
+        let cardElement = elements.create("card");
+        cardElement.mount("#card-element");
+
+        document.getElementById("payment-form").addEventListener("submit", async (e) => {
+            e.preventDefault();
+            let amount = document.getElementById("amount").value;
+
+            let response = await fetch("http://localhost:5000/create-payment-intent", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ amount: amount, currency: "usd" }),
+            });
+
+            let { clientSecret } = await response.json();
+
+            let { paymentIntent, error } = await stripe.confirmCardPayment(clientSecret, {
+                payment_method: { card: cardElement },
+            });
+
+            if (error) {
+                document.getElementById("error-message").innerText = error.message;
+            } else {
+                alert("Payment successful!");
+            }
+        });
+    </script>
+</body>
+</html>
